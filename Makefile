@@ -18,7 +18,7 @@ ifeq ($(UNAME), Darwin)
 	open -a $(STANDALONE).app $(BIN) ;
 	osascript -e 'tell application "Flash Player Debugger" to set the bounds of the first window to {3000, 400, 3550, 800}' ;
 else
-	$(STANDALONE) $(BIN) ;
+	$(STANDALONE) $(BIN) & ;
 endif
 
 browser:
@@ -36,7 +36,7 @@ ifeq ($(UNAME), Darwin)
 	open -a $(STANDALONE) $(BIN) ;
 	osascript -e 'tell application "Flash Player Debugger" to set the bounds of the first window to {3000, 400, 3550, 800}' ;	
 else
-	$(STANDALONE) $(BIN) ;
+	$(STANDALONE) $(BIN) & ;
 endif
 
 clean:
