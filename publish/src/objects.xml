@@ -1,0 +1,10 @@
+<objects>
+	
+	<object name="Banana" image="banana.gif" shape="rectangle" category="kitchen" weight="0.2" />
+	<object name="Large Cleaver" image="cleaver_large.gif" shape="rectangle" category="kitchen" weight="1.1" />
+	<object name="Small Cleaver" image="cleaver_small.gif" shape="rectangle" category="kitchen" weight="0.8" />
+	<object name="Coffeemachine" image="coffeemachine.gif" shape="rectangle" category="kitchen" weight="3" />
+	<object name="Microwave" image="microwave.gif" shape="rectangle" category="kitchen" weight="7" />
+	<object name="Refridgerator" image="fridge.gif" shape="rectangle" category="kitchen" weight="45" />
+	<object name="Knife" image="knife.gif" shape="rectangle" category="kitchen" weight="0.3" />
+</objects>
