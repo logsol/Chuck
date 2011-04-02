@@ -9,10 +9,16 @@
 	 */
 	public class InputControlUnit
 	{
+		public static const KEY_LEFT : int = 65;
+		public static const KEY_RIGHT : int = 68;
+		public static const KEY_UP : int = 87;
+		public static const KEY_DOWN : int = 83;
+		
 		public static var _instance:InputControlUnit = null;
 		protected var _ki:KeyboardInput;
 		protected var _me:Me;
 		protected var _shift:Boolean = false;
+		protected var _isJumping:Boolean = false;
 
 		public static function getInstance():InputControlUnit
 		{
@@ -28,11 +34,11 @@
 			this._me = Processor.getInstance().getMe();
 			this._ki = KeyboardInput.getInstance();
 			
-			this._ki.registerKey(65, this.moveLeft, this.stop, this.moveLeft);
-			this._ki.registerKey(68, this.moveRight, this.stop, this.moveRight);
-			this._ki.registerKey(87, this.preJump, this.jump, this.preJump);
-			this._ki.registerKey(83, this.duck, this.standUp, this.duck);
-			this._ki.registerKey(83, this.activateShift, this.activateShift, this.deactivateShift);
+			this._ki.registerKey(KEY_LEFT, this.moveLeft, this.stop, this.moveLeft);
+			this._ki.registerKey(KEY_RIGHT, this.moveRight, this.stop, this.moveRight);
+			this._ki.registerKey(KEY_UP, this.jump, this.jumped, this.jumping);
+			this._ki.registerKey(KEY_DOWN, this.duck, this.standUp, this.duck);
+			this._ki.registerKey(KEY_DOWN, this.activateShift, this.activateShift, this.deactivateShift);
 			
 			this._ki.registerKey(37, this.wasd);
 			this._ki.registerKey(38, this.wasd);
@@ -67,7 +73,21 @@
 		
 		public function jump():void
 		{
+			this._isJumping = true;
 			this._me.jump();
+		}
+		
+		public function jumped():void
+		{
+			this._isJumping = false;
+		}
+		
+		public function jumping():void
+		{
+			if (this._isJumping)
+			{
+				this._me.jumping();			
+			}
 		}
 		
 		public function duck():void

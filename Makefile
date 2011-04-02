@@ -16,7 +16,7 @@ all:
 	$(COMPILER) -use-network=false $(ENTRY_POINT) -o $(BIN) ;
 ifeq ($(UNAME), Darwin)
 	open -a $(STANDALONE).app $(BIN) ;
-	osascript -e 'tell application "Flash Player Debugger" to set the bounds of the first window to {3000, 400, 3550, 800}' ;
+	osascript -e 'tell application "Flash Player Debugger" to set the bounds of the first window to {2000, 400, 2550, 800}' ;
 else
 	$(STANDALONE) $(BIN) & ;
 endif
