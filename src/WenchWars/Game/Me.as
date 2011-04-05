@@ -96,6 +96,13 @@
 			}
 		}
 		
+		public function jumping():void
+		{
+			if (!this.isStanding()) {
+				this._doll.jumping();
+			}
+		}
+		
 		public function duck():void
 		{
 			if (this._standing && !this._isWalking())

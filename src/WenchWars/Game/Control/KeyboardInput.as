@@ -30,7 +30,7 @@
 			View.getInstance().getStage().addEventListener(KeyboardEvent.KEY_UP, this._onKeyUp);
 		}
 		
-		public function registerKey(keyCode:Number, onKeyDown:Function, onKeyUp:Function = null, onKeyFrame:Function = null):void
+		public function registerKey(keyCode:int, onKeyDown:Function, onKeyUp:Function = null, onKeyFrame:Function = null):void
 		{
 			var key:Key = new Key();
 			key.setKeyDownFunction(onKeyDown);

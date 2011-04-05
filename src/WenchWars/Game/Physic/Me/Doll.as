@@ -103,6 +103,12 @@
 			var vector:b2Vec2 = new b2Vec2(0, -Settings.JUMP_SPEED);
 			this._body.ApplyImpulse(vector, this._body.GetPosition());
 		}
+		
+		public function jumping():void
+		{
+			var vector:b2Vec2 = new b2Vec2(0, -0.1);
+			this._body.ApplyImpulse(vector, this._body.GetPosition());
+		}
 	}
 
 }
