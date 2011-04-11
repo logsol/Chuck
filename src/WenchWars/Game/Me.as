@@ -11,7 +11,8 @@
 	import WenchWars.Game.Physic.Me.Doll;
 	import WenchWars.Tool.Debug.Status;
 	
-	import WenchWars.Tool.EmbedHandler;
+	import WenchWars.Tool.EmbedHandler; 
+	import WenchWars.Tool.MovieClipLabelParser;
 	
 	/**
 	 * ...
@@ -31,6 +32,9 @@
 			this._doll = new Doll();
 			this._mc = EmbedHandler.load(EmbedHandler.CHUCK);
 			this._mc.stop();
+			var mclp:MovieClipLabelParser = new MovieClipLabelParser();
+			mclp.parse(this._mc);
+			
 			Repository.getInstance().createModel(this._mc, this._doll.getBody());
 		}
 		
@@ -81,10 +85,10 @@
 		
 		public function preJump():void
 		{
-			if (this._standing && !this._isWalking())
-			{
-				this._animate('prejump');
-			}
+		//	if (this._standing && !this._isWalking())
+		//	{
+		//		this._animate('prejump');
+		//	}
 		}
 		
 		public function jump():void
@@ -126,7 +130,7 @@
 				return;
 			}
 			
-			// this._mc.gotoAndPlay(type);
+			this._mc.gotoAndPlay(type);
 			
 			this._currentAnimationState = type;
 		}
@@ -135,7 +139,7 @@
 		{
 			if (this._moveDirection == this._lookDirection)
 			{
-				return 'walk';
+				return 'run';
 			} 
 			return 'walkback';
 		}

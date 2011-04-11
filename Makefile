@@ -13,7 +13,8 @@ ENTRY_POINT=src/Main.as
 
 all:
 	killall $(STANDALONE) &2>/dev/null ;
-	$(COMPILER) -use-network=false $(ENTRY_POINT) -o $(BIN) ;
+	clear ;
+	$(COMPILER) -use-network=false -debug=true $(ENTRY_POINT) -o $(BIN) ;
 ifeq ($(UNAME), Darwin)
 	open -a $(STANDALONE).app $(BIN) ;
 	osascript -e 'tell application "Flash Player Debugger" to set the bounds of the first window to {2000, 400, 2550, 800}' ;

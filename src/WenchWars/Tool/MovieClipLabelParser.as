@@ -1,11 +1,10 @@
-package WenchWars.Tool 
+	package WenchWars.Tool 
 {
 	import flash.display.MovieClip;
 	import flash.display.FrameLabel;
 	import flash.events.Event;
 	
 	import WenchWars.View;
-	import flash.text.TextField;
 	/**
 	 * ...
 	 * @author Karl Pannek
@@ -13,41 +12,54 @@ package WenchWars.Tool
 		
 	public class MovieClipLabelParser
 	{
-		private var registry:Array;
+		// todo: has to be multidimensional, in order to work for multiple mcs
+		private var registry:Array = new Array();
 		
 		public function parse(target:MovieClip):void
 		{
 			var labels:Array = target.currentLabels;
-			var temp:Object;
-			var parts:Array;
-			/*
+			
 			for each (var frameLabel:FrameLabel in labels)
 			{
+				
 				if(frameLabel.name.substr(0,1) == '*')
 				{	
-					parts = frameLabel.name.substr(1,0);//.split(":");
+					var output:Array = frameLabel.name.substr(1).split(":");
+
+					output[1] = output[1] ? output[1] : null;
 					
-					temp = {
+					var temp:Object = {
 						frame: frameLabel.frame,
-						action: parts[0]
-						//parameter: parts[1]
+						action: output[0].substr(0, 4),
+						parameter: output[1]
 					};
 					
 					this.registry[frameLabel.frame] = temp;
-					
-					temp = null;
 				} 
-				
-			var result:TextField = new TextField();
-            result.x = 100; 
-            result.y = 100;
-            result.width = 300; 
-            result.height = 100;
-			result.text = this.registry.toString();
-            View.getInstance().addToContainer(result);
 			}
-			*/
-			//target.addEventListener(Event.ENTER_FRAME, this.update);
+			
+			target.addEventListener(Event.ENTER_FRAME, this.update);
+		}
+		
+		protected function update(evt:Event):void
+		{
+			if(this.registry[evt.target.currentFrame])
+			{
+				switch(this.registry[evt.target.currentFrame].action)
+				{	
+					case 'stop': 
+						evt.target.stop();
+						break;
+						 
+					case 'gtap': 
+						evt.target.gotoAndPlay(this.registry[evt.target.currentFrame].parameter);
+						break;
+						
+					case 'gtap': 
+						evt.target.gotoAndStop(this.registry[evt.target.currentFrame].parameter);
+						break;
+				}
+			}
 		}
 	}
 }
