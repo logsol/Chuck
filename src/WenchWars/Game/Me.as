@@ -172,7 +172,9 @@
 		
 		protected function _isWalking():Boolean
 		{
-			if (this._currentAnimationState == 'walk' || this._currentAnimationState == 'walkback')
+			var states:Array = new Array('walk', 'walkback', 'run');
+			
+			if (states.indexOf(this._currentAnimationState) >= 0)
 			{
 				return true;
 			}
