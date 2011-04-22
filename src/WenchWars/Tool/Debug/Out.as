@@ -15,6 +15,24 @@ package WenchWars.Tool.Debug
 		
 		public static function put(output:*):void
 		{
+			Out.createField();
+            Out.field.appendText("- " + output.toString() + "\n");
+		}
+		
+		public static function pad(output:*):void
+		{
+			Out.createField();
+			Out.field.text = output.toString();
+		}
+		
+		public static function push(output:*):void
+		{
+			Out.createField();
+			Out.field.appendText(output.toString() + " | ");
+		}
+		
+		private static function createField():void
+		{
 			if(!Out.field)
 			{
 				Out.field = new TextField();
@@ -31,7 +49,6 @@ package WenchWars.Tool.Debug
 				
 				View.getInstance().addToContainer(Out.field);
 			}
-            Out.field.appendText("- " + output.toString() + "\n");
 		}
 	}
 }
