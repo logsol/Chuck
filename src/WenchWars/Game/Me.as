@@ -9,7 +9,7 @@
 	import WenchWars.Config.Settings;
 	import WenchWars.Game.Model.Repository;
 	import WenchWars.Game.Physic.Me.Doll;
-	import WenchWars.Tool.Debug.Status;
+	import WenchWars.Tool.Debug.*;
 	
 	import WenchWars.Tool.EmbedHandler; 
 	import WenchWars.Tool.MovieClipLabelParser;
@@ -24,8 +24,8 @@
 		protected var _doll:Doll;
 		protected var _mc:MovieClip;
 		protected var _currentAnimationState:String = 'stand';
-		protected var _lookDirection:Number = 1;
-		protected var _moveDirection:Number = 0;
+		protected var _lookDirection:int = 1;
+		protected var _moveDirection:int = 0;
 		
 		public function Me():void
 		{
@@ -50,7 +50,8 @@
 		
 		public function setStanding(isStanding:Boolean):void
 		{
-			if (this._currentAnimationState == 'jump' && !this._standing && isStanding)
+			var resetStates:Array = ['jump', 'jumploop'];
+			if (resetStates.indexOf(this._currentAnimationState)>=0 && !this._standing && isStanding)
 			{
 				this._animate('stand');
 			}
@@ -65,9 +66,23 @@
 		public function move(direction:int):void
 		{
 			this._moveDirection = direction;
-			this._doll.move(direction);
 			
-			if (this._standing && this._currentAnimationState != 'jump')
+			switch(true)
+			{
+				case direction == this._lookDirection && this.isStanding():
+					this._doll.move(direction, Settings.RUN_SPEED);
+					break;
+					
+				case !this.isStanding():
+					this._doll.move(direction, Settings.FLY_SPEED);
+					break;
+				
+				default:
+					this._doll.move(direction, Settings.WALK_SPEED);
+					break;
+			}
+			
+			if (this.isStanding())
 			{
 				this._animate(this._calculateWalkAnimation());
 			}
@@ -97,6 +112,7 @@
 			{
 				this._doll.jump();
 				this._animate('jump');
+				this.setStanding(false);
 			}
 		}
 		
@@ -147,7 +163,7 @@
 		public function look(x:Number, y:Number):void
 		{
 			var degree:Number = Math.atan2(Settings.STAGE_WIDTH / 2 - x, Settings.STAGE_HEIGHT / 2 - 25 - y) / (Math.PI / 180);
-			var lastLookDirection:Number = this._lookDirection;
+			var lastLookDirection:int = this._lookDirection;
 			
 			if (x < Settings.STAGE_WIDTH / 2)
 			{
@@ -172,13 +188,24 @@
 		
 		protected function _isWalking():Boolean
 		{
-			var states:Array = new Array('walk', 'walkback', 'run');
+			var states:Array = ['walk', 'walkback', 'run'];
 			
 			if (states.indexOf(this._currentAnimationState) >= 0)
 			{
 				return true;
 			}
 			return false;
+		}
+		
+		// called by CollisionDetection
+		public function onFootSensorDetection():void
+		{
+			
+			if(this._doll.getBody().GetLinearVelocity().y < -Settings.JUMP_SPEED && !this.isStanding())
+			{
+				return;
+			}
+			this.setStanding(true);
 		}
 		
 		public function update():void
@@ -193,9 +220,9 @@
 			Status.getInstance('currAnimState').setValue(this._currentAnimationState);
 			Status.getInstance('isStanding').setValue(this._standing);
 			
-			if (!this._doll.getBody().IsSleeping())
+			if (this._doll.getBody().IsSleeping())
 			{
-				this.setStanding(false);
+				this.setStanding(true);
 			}
 		}
 	}

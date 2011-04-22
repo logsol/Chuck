@@ -27,8 +27,9 @@
 		public static const TILE_SIZE:int = 15;
 		
 		// GAME PLAY 
-		public static const WALK_SPEED:Number = 3.0;
-		public static const RUN_SPEED:Number = 5.0;
+		public static const WALK_SPEED:Number = 2.5;
+		public static const RUN_SPEED:Number = 4.0;
+		public static const FLY_SPEED:Number = 3.2;
 		public static const JUMP_SPEED:Number = 3.0;
 		
 		// restitution = bouncyness, friction = rubbing, density = mass
@@ -37,7 +38,7 @@
 		
 		public static const ME_DENSITY:Number = 0.96;
 		public static const ME_FRICTION:Number = 5;
-		public static const ME_WALK_FRICTION:Number = 0;
+		public static const ME_MOTION_FRICTION:Number = 0;
 		public static const ME_RESTITUTION:Number = 0.0;
 		public static const ME_LINEAR_DAMPING:Number = .5;
 		

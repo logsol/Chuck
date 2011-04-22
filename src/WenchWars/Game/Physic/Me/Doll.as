@@ -12,6 +12,7 @@
 	
 	import WenchWars.Config.Settings;
 	import WenchWars.Game.Processor;
+	import WenchWars.Tool.Debug.*;
 	
 	/**
 	 * ...
@@ -84,11 +85,11 @@
 			}
 		}
 		
-		public function move(direction:int):void
+		public function move(direction:int, speed:Number):void
 		{
-			this._setFriction(Settings.ME_WALK_FRICTION);
+			this._setFriction(Settings.ME_MOTION_FRICTION);
 			this._body.WakeUp();
-			var vector:b2Vec2 = new b2Vec2(Settings.WALK_SPEED * direction, this._body.GetLinearVelocity().y);
+			var vector:b2Vec2 = new b2Vec2(speed * direction, this._body.GetLinearVelocity().y);
 			this._body.SetLinearVelocity(vector);
 		}
 		
@@ -100,8 +101,12 @@
 		public function jump():void
 		{
 			this._body.WakeUp();
+			
 			var vector:b2Vec2 = new b2Vec2(0, -Settings.JUMP_SPEED);
 			this._body.ApplyImpulse(vector, this._body.GetPosition());
+			
+			// maybe change to a constant force instead of applying of force?
+			// to prevent higher jumping running uphill, etc.
 		}
 		
 		public function jumping():void

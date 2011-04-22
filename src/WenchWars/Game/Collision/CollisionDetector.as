@@ -24,12 +24,12 @@
 		
 		public override function Add(point:b2ContactPoint) : void
 		{
-			this.handleStand(point, true);
+			this.handleStand(point);
 		}
 	 
 		public override function Persist(point:b2ContactPoint) : void
 		{
-			this.handleStand(point, true);
+			this.handleStand(point);
 		}
 	 
 		public override function Remove(point:b2ContactPoint) : void
@@ -38,11 +38,11 @@
 		public override function Result(point:b2ContactResult) : void
 		{}
 		
-		protected function handleStand(point:b2ContactPoint, isStanding:Boolean):void
+		protected function handleStand(point:b2ContactPoint):void
 		{
 			if (point.shape1.GetUserData() == 'myFeet' || point.shape2.GetUserData() == 'myFeet') 
 			{
-				this._me.setStanding(isStanding);
+				this._me.onFootSensorDetection();
 			}
 		}
 	}
