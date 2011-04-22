@@ -19,7 +19,7 @@
 				View.getInstance().init(stage);
 				Controller.getInstance().select('start');
 				
-				Out.put("The animation still has some bugs, \nbut we'll get there ;)");
+				//Out.put("The animation still has some bugs, \nbut we'll get there ;)");
 			}
 			catch(e:Error)
 			{
