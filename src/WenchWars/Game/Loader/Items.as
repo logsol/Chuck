@@ -16,6 +16,8 @@
 	import WenchWars.Game.Processor;
 	import WenchWars.Game.Model.Repository;
 	import WenchWars.Game.Physic.Engine;
+	
+	import WenchWars.Tool.Debug.*;
 	/**
 	 * ...
 	 * @author Karl Pannek
@@ -39,6 +41,10 @@
 			for (var i:Number = 0; i < items.length; i++)
 			{
 				var hand:DisplayFileHandler = new DisplayFileHandler();
+				
+				Out.put('/' 
+					+ items[i].attributes.category + '/'
+					+ items[i].attributes.image);
 				
 				hand.load(
 					Settings.GRAPHICS_PATH + '/' 
