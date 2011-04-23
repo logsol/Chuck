@@ -82,7 +82,7 @@
 		
 		public function update():void
 		{
-			this._world.Step(Settings.BOX2D_TIME_STEP, Settings.BOX2D_ITERATIONS);
+			this._world.Step(Settings.BOX2D_TIPLAYER_STEP, Settings.BOX2D_ITERATIONS);
 		}
 		
 	}

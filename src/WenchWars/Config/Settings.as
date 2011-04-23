@@ -17,7 +17,7 @@
 		public static const BOX2D_ALLOW_SLEEP:Boolean = true;
 		public static const BOX2D_GRAVITY:int = 16;
 		public static const BOX2D_ITERATIONS:int = 5;
-		public static const BOX2D_TIME_STEP:Number = 1 / 30;
+		public static const BOX2D_TIPLAYER_STEP:Number = 1 / 30;
 		
 		// GRAPHIC PATHS
 		public static const GRAPHICS_PATH:String = 'img';
@@ -36,11 +36,11 @@
 		public static const TILE_FRICTION:Number = 0.99;
 		public static const TILE_RESTITUTION:Number = 0.1;
 		
-		public static const ME_DENSITY:Number = 0.96;
-		public static const ME_FRICTION:Number = 5;
-		public static const ME_MOTION_FRICTION:Number = 0;
-		public static const ME_RESTITUTION:Number = 0.0;
-		public static const ME_LINEAR_DAMPING:Number = .5;
+		public static const PLAYER_DENSITY:Number = 0.96;
+		public static const PLAYER_FRICTION:Number = 5;
+		public static const PLAYER_MOTION_FRICTION:Number = 0;
+		public static const PLAYER_RESTITUTION:Number = 0.0;
+		public static const PLAYER_LINEAR_DAMPING:Number = .5;
 		
 		
 		public static const ITEM_DENSITY:Number = 0.9;

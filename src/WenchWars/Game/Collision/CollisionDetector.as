@@ -6,7 +6,7 @@
 	import Box2D.Collision.b2ContactPoint;
 	import Box2D.Dynamics.Contacts.b2ContactResult;
 	
-	import WenchWars.Game.Me;
+	import WenchWars.Game.Player;
 	import WenchWars.Game.Processor;
 	import WenchWars.Config.Settings;
 	/**
@@ -15,7 +15,7 @@
 	 */
 	public class CollisionDetector extends b2ContactListener
 	{
-		protected var _me:Me;
+		protected var _me:Player;
 		
 		public function CollisionDetector():void
 		{

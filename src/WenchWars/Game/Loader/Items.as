@@ -42,10 +42,6 @@
 			{
 				var hand:DisplayFileHandler = new DisplayFileHandler();
 				
-				Out.put('/' 
-					+ items[i].attributes.category + '/'
-					+ items[i].attributes.image);
-				
 				hand.load(
 					Settings.GRAPHICS_PATH + '/' 
 					+ Settings.GRAPHICS_SUBPATH_ITEMS + '/' 

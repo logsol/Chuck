@@ -36,7 +36,7 @@
 	{
 		protected static var _instance:Processor = null;
 		public static var count:int = 0;
-		protected var _me:Me;
+		protected var _me:Player;
 		protected var _engine:Engine;
 		protected var _camera:Camera;
 		protected var _repository:Repository;
@@ -55,8 +55,10 @@
 		public function actuate():void
 		{
 			this._engine     = new Engine();
-			this._me         = new Me();
-			this._camera     = Camera.getInstance();
+			this._me         = new Player();
+			//var second:Player = new Player();
+			
+			this._camera     = Camera.getInstance()
 			this._repository = Repository.getInstance();
 			
 			this._engine.setCollisionDetector();
@@ -67,10 +69,12 @@
 			new Level();
 			new Items();
 			
-			View.getInstance().getSprite().addEventListener(Event.ENTER_FRAME, _update)
+			this._camera.follow(this._me);
+			
+			View.getInstance().getSprite().addEventListener(Event.ENTER_FRAME, this._update)
 		}
 		
-		public function getMe():Me
+		public function getMe():Player
 		{
 			return this._me;
 		}

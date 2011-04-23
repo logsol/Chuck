@@ -1,7 +1,7 @@
 ﻿package WenchWars.Game.Control 
 {
 	import WenchWars.Game.Control.KeyboardInput;
-	import WenchWars.Game.Me;
+	import WenchWars.Game.Player;
 	import WenchWars.Game.Processor;
 	/**
 	 * ...
@@ -16,7 +16,7 @@
 		
 		public static var _instance:InputControlUnit = null;
 		protected var _ki:KeyboardInput;
-		protected var _me:Me;
+		protected var _me:Player;
 		protected var _shift:Boolean = false;
 		protected var _isJumping:Boolean = false;
 
@@ -64,11 +64,6 @@
 		public function stop():void
 		{
 			this._me.stop();
-		}
-		
-		public function preJump():void
-		{
-			this._me.preJump();
 		}
 		
 		public function jump():void
