@@ -16,8 +16,9 @@
 		public static const BOX2D_WORLD_AABB_SIZE:int = 3000;
 		public static const BOX2D_ALLOW_SLEEP:Boolean = true;
 		public static const BOX2D_GRAVITY:int = 16;
-		public static const BOX2D_ITERATIONS:int = 5;
-		public static const BOX2D_TIPLAYER_STEP:Number = 1 / 30;
+		public static const BOX2D_VELOCITY_ITERATIONS:int = 5;
+		public static const BOX2D_POSITION_ITERATIONS:int = 5;
+		public static const BOX2D_TIME_STEP:Number = 1 / 30;
 		
 		// GRAPHIC PATHS
 		public static const GRAPHICS_PATH:String = 'img';
@@ -45,7 +46,7 @@
 		
 		public static const ITEM_DENSITY:Number = 0.9;
 		public static const ITEM_FRICTION:Number = 0.99;
-		public static const ITEM_RESTITUTION:Number = 0.04;
+		public static const ITEM_RESTITUTION:Number = 0.02;
 
 	}
 }

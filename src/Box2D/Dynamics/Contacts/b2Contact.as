@@ -26,241 +26,346 @@ import Box2D.Collision.*;
 import Box2D.Common.Math.*;
 import Box2D.Common.*;
 
+import Box2D.Common.b2internal;
+use namespace b2internal;
+
 
 //typedef b2Contact* b2ContactCreateFcn(b2Shape* shape1, b2Shape* shape2, b2BlockAllocator* allocator);
 //typedef void b2ContactDestroyFcn(b2Contact* contact, b2BlockAllocator* allocator);
 
 
 
+/**
+* The class manages contact between two shapes. A contact exists for each overlapping
+* AABB in the broad-phase (except if filtered). Therefore a contact object may exist
+* that has no contact points.
+*/
 public class b2Contact
 {
-	public virtual function GetManifolds():Array{return null};
-	
-	/// Get the number of manifolds. This is 0 or 1 between convex shapes.
-	/// This may be greater than 1 for convex-vs-concave shapes. Each
-	/// manifold holds up to two contact points with a shared contact normal.
-	public function GetManifoldCount():int
+	/**
+	 * Get the contact manifold. Do not modify the manifold unless you understand the
+	 * internals of Box2D
+	 */
+	public function GetManifold():b2Manifold
 	{
-		return m_manifoldCount;
+		return m_manifold;
 	}
 	
-	/// Is this contact solid?
-	/// @return true if this contact should generate a response.
-	public function IsSolid():Boolean{
-		return (m_flags & e_nonSolidFlag) == 0;
+	/**
+	 * Get the world manifold
+	 */
+	public function GetWorldManifold(worldManifold:b2WorldManifold):void
+	{
+		var bodyA:b2Body = m_fixtureA.GetBody();
+		var bodyB:b2Body = m_fixtureB.GetBody();
+		var shapeA:b2Shape = m_fixtureA.GetShape();
+		var shapeB:b2Shape = m_fixtureB.GetShape();
+		
+		worldManifold.Initialize(m_manifold, bodyA.GetTransform(), shapeA.m_radius, bodyB.GetTransform(), shapeB.m_radius);
 	}
 	
-	/// Get the next contact in the world's contact list.
+	/**
+	 * Is this contact touching.
+	 */
+	public function IsTouching():Boolean
+	{
+		return (m_flags & e_touchingFlag) == e_touchingFlag; 
+	}
+	
+	/**
+	 * Does this contact generate TOI events for continuous simulation
+	 */
+	public function IsContinuous():Boolean
+	{
+		return (m_flags & e_continuousFlag) == e_continuousFlag; 
+	}
+	
+	/**
+	 * Change this to be a sensor or-non-sensor contact.
+	 */
+	public function SetSensor(sensor:Boolean):void{
+		if (sensor)
+		{
+			m_flags |= e_sensorFlag;
+		}
+		else
+		{
+			m_flags &= ~e_sensorFlag;
+		}
+	}
+	
+	/**
+	 * Is this contact a sensor?
+	 */
+	public function IsSensor():Boolean{
+		return (m_flags & e_sensorFlag) == e_sensorFlag;
+	}
+	
+	/**
+	 * Enable/disable this contact. This can be used inside the pre-solve
+	 * contact listener. The contact is only disabled for the current
+	 * time step (or sub-step in continuous collision).
+	 */
+	public function SetEnabled(flag:Boolean):void{
+		if (flag)
+		{
+			m_flags |= e_enabledFlag;
+		}
+		else
+		{
+			m_flags &= ~e_enabledFlag;
+		}
+	}
+	
+	/**
+	 * Has this contact been disabled?
+	 * @return
+	 */
+	public function IsEnabled():Boolean {
+		return (m_flags & e_enabledFlag) == e_enabledFlag;
+	}
+	
+	/**
+	* Get the next contact in the world's contact list.
+	*/
 	public function GetNext():b2Contact{
 		return m_next;
 	}
 	
-	/// Get the first shape in this contact.
-	public function GetShape1():b2Shape{
-		return m_shape1;
+	/**
+	* Get the first fixture in this contact.
+	*/
+	public function GetFixtureA():b2Fixture
+	{
+		return m_fixtureA;
 	}
 	
-	/// Get the second shape in this contact.
-	public function GetShape2():b2Shape{
-		return m_shape2;
+	/**
+	* Get the second fixture in this contact.
+	*/
+	public function GetFixtureB():b2Fixture
+	{
+		return m_fixtureB;
+	}
+	
+	/**
+	 * Flag this contact for filtering. Filtering will occur the next time step.
+	 */
+	public function FlagForFiltering():void
+	{
+		m_flags |= e_filterFlag;
 	}
 
 	//--------------- Internals Below -------------------
 	
 	// m_flags
 	// enum
-	static public var e_nonSolidFlag:uint	= 0x0001;
-	static public var e_slowFlag:uint		= 0x0002;
-	static public var e_islandFlag:uint		= 0x0004;
-	static public var e_toiFlag:uint		= 0x0008;
+	// This contact should not participate in Solve
+	// The contact equivalent of sensors
+	static b2internal var e_sensorFlag:uint		= 0x0001;
+	// Generate TOI events.
+	static b2internal var e_continuousFlag:uint	= 0x0002;
+	// Used when crawling contact graph when forming islands.
+	static b2internal var e_islandFlag:uint		= 0x0004;
+	// Used in SolveTOI to indicate the cached toi value is still valid.
+	static b2internal var e_toiFlag:uint		= 0x0008;
+	// Set when shapes are touching
+	static b2internal var e_touchingFlag:uint	= 0x0010;
+	// This contact can be disabled (by user)
+	static b2internal var e_enabledFlag:uint	= 0x0020;
+	// This contact needs filtering because a fixture filter was changed.
+	static b2internal var e_filterFlag:uint		= 0x0040;
 
-	static public function AddType(createFcn:Function, destroyFcn:Function, type1:int, type2:int) : void
+	public function b2Contact()
 	{
-		//b2Settings.b2Assert(b2Shape.e_unknownShape < type1 && type1 < b2Shape.e_shapeTypeCount);
-		//b2Settings.b2Assert(b2Shape.e_unknownShape < type2 && type2 < b2Shape.e_shapeTypeCount);
-		
-		s_registers[type1][type2].createFcn = createFcn;
-		s_registers[type1][type2].destroyFcn = destroyFcn;
-		s_registers[type1][type2].primary = true;
-		
-		if (type1 != type2)
-		{
-			s_registers[type2][type1].createFcn = createFcn;
-			s_registers[type2][type1].destroyFcn = destroyFcn;
-			s_registers[type2][type1].primary = false;
-		}
+		// Real work is done in Reset
 	}
-	static public function InitializeRegisters() : void{
-		s_registers = new Array(b2Shape.e_shapeTypeCount);
-		for (var i:int = 0; i < b2Shape.e_shapeTypeCount; i++){
-			s_registers[i] = new Array(b2Shape.e_shapeTypeCount);
-			for (var j:int = 0; j < b2Shape.e_shapeTypeCount; j++){
-				s_registers[i][j] = new b2ContactRegister();
-			}
-		}
-		
-		AddType(b2CircleContact.Create, b2CircleContact.Destroy, b2Shape.e_circleShape, b2Shape.e_circleShape);
-		AddType(b2PolyAndCircleContact.Create, b2PolyAndCircleContact.Destroy, b2Shape.e_polygonShape, b2Shape.e_circleShape);
-		AddType(b2PolygonContact.Create, b2PolygonContact.Destroy, b2Shape.e_polygonShape, b2Shape.e_polygonShape);
-		
-	}
-	static public function Create(shape1:b2Shape, shape2:b2Shape, allocator:*):b2Contact{
-		if (s_initialized == false)
-		{
-			InitializeRegisters();
-			s_initialized = true;
-		}
-		
-		var type1:int = shape1.m_type;
-		var type2:int = shape2.m_type;
-		
-		//b2Settings.b2Assert(b2Shape.e_unknownShape < type1 && type1 < b2Shape.e_shapeTypeCount);
-		//b2Settings.b2Assert(b2Shape.e_unknownShape < type2 && type2 < b2Shape.e_shapeTypeCount);
-		
-		var reg:b2ContactRegister = s_registers[type1][type2];
-		var createFcn:Function = reg.createFcn;
-		if (createFcn != null)
-		{
-			if (reg.primary)
-			{
-				return createFcn(shape1, shape2, allocator);
-			}
-			else
-			{
-				var c:b2Contact = createFcn(shape2, shape1, allocator);
-				for (var i:int = 0; i < c.m_manifoldCount; ++i)
-				{
-					var m:b2Manifold = c.GetManifolds()[ i ];
-					m.normal = m.normal.Negative();
-				}
-				return c;
-			}
-		}
-		else
-		{
-			return null;
-		}
-	}
-	static public function Destroy(contact:b2Contact, allocator:*) : void{
-		//b2Settings.b2Assert(s_initialized == true);
-		
-		if (contact.m_manifoldCount > 0)
-		{
-			contact.m_shape1.m_body.WakeUp();
-			contact.m_shape2.m_body.WakeUp();
-		}
-		
-		var type1:int = contact.m_shape1.m_type;
-		var type2:int = contact.m_shape2.m_type;
-		
-		//b2Settings.b2Assert(b2Shape.e_unknownShape < type1 && type1 < b2Shape.e_shapeTypeCount);
-		//b2Settings.b2Assert(b2Shape.e_unknownShape < type2 && type2 < b2Shape.e_shapeTypeCount);
-		
-		var reg:b2ContactRegister = s_registers[type1][type2];
-		var destroyFcn:Function = reg.destroyFcn;
-		destroyFcn(contact, allocator);
-	}
-
-	public function b2Contact(s1:b2Shape=null, s2:b2Shape=null)
+	
+	/** @private */
+	b2internal function Reset(fixtureA:b2Fixture = null, fixtureB:b2Fixture = null):void
 	{
-		m_flags = 0;
+		m_flags = e_enabledFlag;
 		
-		if (!s1 || !s2){
-			m_shape1 = null;
-			m_shape2 = null;
+		if (!fixtureA || !fixtureB){
+			m_fixtureA = null;
+			m_fixtureB = null;
 			return;
 		}
 		
-		if (s1.IsSensor() || s2.IsSensor())
+		if (fixtureA.IsSensor() || fixtureB.IsSensor())
 		{
-			m_flags |= e_nonSolidFlag;
+			m_flags |= e_sensorFlag;
 		}
 		
-		m_shape1 = s1;
-		m_shape2 = s2;
+		var bodyA:b2Body = fixtureA.GetBody();
+		var bodyB:b2Body = fixtureB.GetBody();
 		
-		m_manifoldCount = 0;
+		if (bodyA.GetType() != b2Body.b2_dynamicBody || bodyA.IsBullet() || bodyB.GetType() != b2Body.b2_dynamicBody || bodyB.IsBullet())
+		{
+			m_flags |= e_continuousFlag;
+		}
 		
-		m_friction = Math.sqrt(m_shape1.m_friction * m_shape2.m_friction);
-		m_restitution = b2Math.b2Max(m_shape1.m_restitution, m_shape2.m_restitution);
+		m_fixtureA = fixtureA;
+		m_fixtureB = fixtureB;
+		
+		m_manifold.m_pointCount = 0;
 		
 		m_prev = null;
 		m_next = null;
 		
-		m_node1.contact = null;
-		m_node1.prev = null;
-		m_node1.next = null;
-		m_node1.other = null;
+		m_nodeA.contact = null;
+		m_nodeA.prev = null;
+		m_nodeA.next = null;
+		m_nodeA.other = null;
 		
-		m_node2.contact = null;
-		m_node2.prev = null;
-		m_node2.next = null;
-		m_node2.other = null;
+		m_nodeB.contact = null;
+		m_nodeB.prev = null;
+		m_nodeB.next = null;
+		m_nodeB.other = null;
 	}
 	
-	//logsol edit: updateFriction
-	public function updateFriction() : void
+	b2internal function Update(listener:b2ContactListener) : void
 	{
-		m_friction = Math.sqrt(m_shape1.m_friction * m_shape2.m_friction);
-	}
-	
-	public function Update(listener:b2ContactListener) : void
-	{
-		//logsol edit
-		updateFriction();
-		var oldCount:int = m_manifoldCount;
+		// Swap old & new manifold
+		var tManifold:b2Manifold = m_oldManifold;
+		m_oldManifold = m_manifold;
+		m_manifold = tManifold;
 		
-		Evaluate(listener);
+		// Re-enable this contact
+		m_flags |= e_enabledFlag;
 		
-		var newCount:int = m_manifoldCount;
+		var touching:Boolean = false;
+		var wasTouching:Boolean = (m_flags & e_touchingFlag) == e_touchingFlag;
 		
-		var body1:b2Body = m_shape1.m_body;
-		var body2:b2Body = m_shape2.m_body;
+		var bodyA:b2Body = m_fixtureA.m_body;
+		var bodyB:b2Body = m_fixtureB.m_body;
 		
-		if (newCount == 0 && oldCount > 0)
+		var aabbOverlap:Boolean = m_fixtureA.m_aabb.TestOverlap(m_fixtureB.m_aabb);
+		
+		// Is this contat a sensor?
+		if (m_flags  & e_sensorFlag)
 		{
-			body1.WakeUp();
-			body2.WakeUp();
-		}
-		
-		// Slow contacts don't generate TOI events.
-		if (body1.IsStatic() || body1.IsBullet() || body2.IsStatic() || body2.IsBullet())
-		{
-			m_flags &= ~e_slowFlag;
+			if (aabbOverlap)
+			{
+				var shapeA:b2Shape = m_fixtureA.GetShape();
+				var shapeB:b2Shape = m_fixtureB.GetShape();
+				var xfA:b2Transform = bodyA.GetTransform();
+				var xfB:b2Transform = bodyB.GetTransform();
+				touching = b2Shape.TestOverlap(shapeA, xfA, shapeB, xfB);
+			}
+			
+			// Sensors don't generate manifolds
+			m_manifold.m_pointCount = 0;
 		}
 		else
 		{
-			m_flags |= e_slowFlag;
+			// Slow contacts don't generate TOI events.
+			if (bodyA.GetType() != b2Body.b2_dynamicBody || bodyA.IsBullet() || bodyB.GetType() != b2Body.b2_dynamicBody || bodyB.IsBullet())
+			{
+				m_flags |= e_continuousFlag;
+			}
+			else
+			{
+				m_flags &= ~e_continuousFlag;
+			}
+			
+			if (aabbOverlap)
+			{
+				Evaluate();
+				
+				touching = m_manifold.m_pointCount > 0;
+				
+				// Match old contact ids to new contact ids and copy the
+				// stored impulses to warm start the solver.
+				for (var i:int = 0; i < m_manifold.m_pointCount; ++i)
+				{
+					var mp2:b2ManifoldPoint = m_manifold.m_points[i];
+					mp2.m_normalImpulse = 0.0;
+					mp2.m_tangentImpulse = 0.0;
+					var id2:b2ContactID = mp2.m_id;
+
+					for (var j:int = 0; j < m_oldManifold.m_pointCount; ++j)
+					{
+						var mp1:b2ManifoldPoint = m_oldManifold.m_points[j];
+
+						if (mp1.m_id.key == id2.key)
+						{
+							mp2.m_normalImpulse = mp1.m_normalImpulse;
+							mp2.m_tangentImpulse = mp1.m_tangentImpulse;
+							break;
+						}
+					}
+				}
+
+			}
+			else
+			{
+				m_manifold.m_pointCount = 0;
+			}
+			if (touching != wasTouching)
+			{
+				bodyA.SetAwake(true);
+				bodyB.SetAwake(true);
+			}
+		}
+				
+		if (touching)
+		{
+			m_flags |= e_touchingFlag;
+		}
+		else
+		{
+			m_flags &= ~e_touchingFlag;
+		}
+
+		if (wasTouching == false && touching == true)
+		{
+			listener.BeginContact(this);
+		}
+
+		if (wasTouching == true && touching == false)
+		{
+			listener.EndContact(this);
+		}
+
+		if ((m_flags & e_sensorFlag) == 0)
+		{
+			listener.PreSolve(this, m_oldManifold);
 		}
 	}
 
 	//virtual ~b2Contact() {}
 
-	public virtual function Evaluate(listener:b2ContactListener) : void{};
-	static public var s_registers:Array; //[][]
-	static public var s_initialized:Boolean = false;
-
-	public var m_flags:uint;
+	b2internal virtual function Evaluate() : void{};
+	
+	private static var s_input:b2TOIInput = new b2TOIInput();
+	b2internal function ComputeTOI(sweepA:b2Sweep, sweepB:b2Sweep):Number
+	{
+		s_input.proxyA.Set(m_fixtureA.GetShape());
+		s_input.proxyB.Set(m_fixtureB.GetShape());
+		s_input.sweepA = sweepA;
+		s_input.sweepB = sweepB;
+		s_input.tolerance = b2Settings.b2_linearSlop;
+		return b2TimeOfImpact.TimeOfImpact(s_input);
+	}
+	
+	b2internal var m_flags:uint;
 
 	// World pool and list pointers.
-	public var m_prev:b2Contact;
-	public var m_next:b2Contact;
+	b2internal var m_prev:b2Contact;
+	b2internal var m_next:b2Contact;
 
 	// Nodes for connecting bodies.
-	public var m_node1:b2ContactEdge = new b2ContactEdge();
-	public var m_node2:b2ContactEdge = new b2ContactEdge();
+	b2internal var m_nodeA:b2ContactEdge = new b2ContactEdge();
+	b2internal var m_nodeB:b2ContactEdge = new b2ContactEdge();
 
-	public var m_shape1:b2Shape;
-	public var m_shape2:b2Shape;
+	b2internal var m_fixtureA:b2Fixture;
+	b2internal var m_fixtureB:b2Fixture;
 
-	public var m_manifoldCount:int;
-
-	// Combined friction
-	public var m_friction:Number;
-	public var m_restitution:Number;
+	b2internal var m_manifold:b2Manifold = new b2Manifold();
+	b2internal var m_oldManifold:b2Manifold = new b2Manifold();
 	
-	public var m_toi:Number;
-
+	b2internal var m_toi:Number;
 };
 
 

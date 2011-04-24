@@ -29,11 +29,7 @@
 		
 		protected function _initBox2d():b2World
 		{
-			var worldAABB:b2AABB = new b2AABB();
-			worldAABB.lowerBound.Set(-Settings.BOX2D_WORLD_AABB_SIZE / 2 / Settings.RATIO, -Settings.BOX2D_WORLD_AABB_SIZE / 2 / Settings.RATIO);
-			worldAABB.upperBound.Set( Settings.BOX2D_WORLD_AABB_SIZE / 2 / Settings.RATIO,  Settings.BOX2D_WORLD_AABB_SIZE / 2 / Settings.RATIO);
-			
-			return new b2World(worldAABB, new b2Vec2(0, Settings.BOX2D_GRAVITY), Settings.BOX2D_ALLOW_SLEEP);
+			return new b2World(new b2Vec2(0,Settings.BOX2D_GRAVITY), Settings.BOX2D_ALLOW_SLEEP);
 		}
 		
 		public function getWorld():b2World
@@ -55,12 +51,13 @@
 			// set debug draw
 			var dbgDraw:b2DebugDraw = new b2DebugDraw();
 			
-			dbgDraw.m_sprite = debugSprite;
-			dbgDraw.m_drawScale = Settings.RATIO;
-			dbgDraw.m_fillAlpha = 0.1;
-			dbgDraw.m_lineThickness = 0;
+			dbgDraw.SetSprite(debugSprite);
+			dbgDraw.SetDrawScale(Settings.RATIO);
+			dbgDraw.SetAlpha(0.5);
+			dbgDraw.SetFillAlpha(0.1);
+			dbgDraw.SetLineThickness(0);
 			
-			dbgDraw.m_drawFlags = null
+			dbgDraw.SetFlags(null
 				| b2DebugDraw.e_shapeBit 
 				//| b2DebugDraw.e_jointBit 
 				//| b2DebugDraw.e_coreShapeBit
@@ -68,7 +65,7 @@
 				//| b2DebugDraw.e_centerOfMassBit
 				//| b2DebugDraw.e_obbBit
 				//| b2DebugDraw.e_pairBit
-			;
+			);
 			
 			this._world.SetDebugDraw(dbgDraw);
 			
@@ -82,7 +79,9 @@
 		
 		public function update():void
 		{
-			this._world.Step(Settings.BOX2D_TIPLAYER_STEP, Settings.BOX2D_ITERATIONS);
+			this._world.Step(Settings.BOX2D_TIME_STEP, Settings.BOX2D_VELOCITY_ITERATIONS, Settings.BOX2D_POSITION_ITERATIONS);
+			this._world.ClearForces();
+			this._world.DrawDebugData();
 		}
 		
 	}

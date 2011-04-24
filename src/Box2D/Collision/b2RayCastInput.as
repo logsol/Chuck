@@ -1,5 +1,5 @@
 ﻿/*
-* Copyright (c) 2006-2007 Erin Catto http://www.gphysics.com
+* Copyright (c) 2009 Erin Catto http://www.gphysics.com
 *
 * This software is provided 'as-is', without any express or implied
 * warranty.  In no event will the authors be held liable for any damages
@@ -16,25 +16,35 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 
-package Box2D.Dynamics{
-
-
-import Box2D.Collision.*;
-import Box2D.Collision.Shapes.*;
-import Box2D.Dynamics.Contacts.*;
-import Box2D.Dynamics.*;
-import Box2D.Common.Math.*;
-import Box2D.Common.*;
-
-
-/// This is called when a body's shape passes outside of the world boundary.
-public class b2BoundaryListener
+/**
+ * Specifies a segment for use with RayCast functions.
+ */
+package Box2D.Collision 
 {
-
-	/// This is called for each body that leaves the world boundary.
-	/// @warning you can't modify the world inside this callback.
-	public virtual function Violation(body:b2Body) : void{};
+	import Box2D.Common.Math.b2Vec2;
 	
-};
-
+	public class b2RayCastInput 
+	{
+		function b2RayCastInput(p1:b2Vec2 = null, p2:b2Vec2 = null, maxFraction:Number = 1)
+		{
+			if (p1)
+				this.p1.SetV(p1);
+			if (p2)
+				this.p2.SetV(p2);
+			this.maxFraction = maxFraction;
+		}
+		/**
+		 * The start point of the ray
+		 */
+		public var p1:b2Vec2 = new b2Vec2();
+		/**
+		 * The end point of the ray
+		 */
+		public var p2:b2Vec2 = new b2Vec2();
+		/**
+		 * Truncate the ray to reach up to this fraction from p1 to p2
+		 */
+		public var maxFraction:Number;
+	}
+	
 }

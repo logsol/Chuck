@@ -9,6 +9,7 @@
 	import WenchWars.Config.Settings;
 	import WenchWars.Game.Model.Repository;
 	import WenchWars.Game.Physic.Player.Doll;
+	import WenchWars.View;
 	import WenchWars.Tool.Debug.*;
 	
 	import WenchWars.Tool.EmbedHandler; 
@@ -34,6 +35,7 @@
 			this._mc.stop();
 			var mclp:MovieClipLabelParser = new MovieClipLabelParser();
 			mclp.parse(this._mc);
+			
 			Repository.getInstance().createModel(this._mc, this._doll.getBody());
 		}
 		
@@ -189,13 +191,25 @@
 		}
 		
 		// called by CollisionDetection
-		public function onFootSensorDetection():void
+		public function onFootSensorDetection(isColliding:Boolean):void
 		{
-			if(this._doll.getBody().GetLinearVelocity().y < -Settings.JUMP_SPEED && !this.isStanding())
+			if(isColliding)
 			{
-				return;
+				if(this._doll.getBody().GetLinearVelocity().y < -Settings.JUMP_SPEED && !this.isStanding())
+				{
+					return;
+				}
+				this.setStanding(true);
 			}
-			this.setStanding(true);
+			else
+			{
+				// TODO: This needs some more thought to it.
+				// maybe take a look at collision groups for collision detection, 
+				// to group all tiles together
+				
+				//this.setStanding(false);
+				//this._animate('jumploop');
+			}
 		}
 		
 		public function update():void
@@ -207,7 +221,7 @@
 				this.stop();
 			}
 			
-			if (this._doll.getBody().IsSleeping())
+			if (!this._doll.getBody().IsAwake())
 			{
 				this.setStanding(true);
 			}

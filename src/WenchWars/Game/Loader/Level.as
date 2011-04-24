@@ -5,9 +5,12 @@
 	import flash.xml.XMLDocument;
 	
 	import Box2D.Dynamics.b2BodyDef;
-	import Box2D.Collision.Shapes.b2PolygonDef;
+	import Box2D.Collision.Shapes.b2PolygonShape;
+	import Box2D.Dynamics.b2Fixture;
+	import Box2D.Dynamics.b2FixtureDef;
 	import Box2D.Dynamics.b2Body;
 	import Box2D.Dynamics.b2World;
+	import Box2D.Common.Math.b2Vec2;
 	
 	import WenchWars.Tool.TextFileHandler;
 	import WenchWars.Config.Settings;
@@ -62,91 +65,86 @@
 		public function createPhysicTile(shape:Number, x:Number, y:Number, rotation:Number = 0):void
 		{
 			var tileSize:Number = Settings.TILE_SIZE;
-			
-			var bodyDef:b2BodyDef = new b2BodyDef();
-			bodyDef.position.x = x / Settings.RATIO;
-			bodyDef.position.y = y / Settings.RATIO;
-			bodyDef.angle = rotation * 90 * Math.PI / 180;
-		
-			var shapeDef:b2PolygonDef = new b2PolygonDef();
+			var vertices:Array = new Array();
 			
 			switch(shape)
 			{
 				case 1:
-					shapeDef.vertexCount = 4;
-					shapeDef.vertices[0].Set(-tileSize / 2 / Settings.RATIO, -tileSize / 2 / Settings.RATIO);  //  o o o
-					shapeDef.vertices[1].Set( tileSize / 2 / Settings.RATIO, -tileSize / 2 / Settings.RATIO);  //  o o o
-					shapeDef.vertices[2].Set( tileSize / 2 / Settings.RATIO,  tileSize / 2 / Settings.RATIO);  //  o o o
-					shapeDef.vertices[3].Set(-tileSize / 2 / Settings.RATIO,  tileSize / 2 / Settings.RATIO);
+					vertices[0] = new b2Vec2(-tileSize / 2 / Settings.RATIO, -tileSize / 2 / Settings.RATIO);  //  o o o
+					vertices[1] = new b2Vec2( tileSize / 2 / Settings.RATIO, -tileSize / 2 / Settings.RATIO);  //  o o o
+					vertices[2] = new b2Vec2( tileSize / 2 / Settings.RATIO,  tileSize / 2 / Settings.RATIO);  //  o o o
+					vertices[3] = new b2Vec2(-tileSize / 2 / Settings.RATIO,  tileSize / 2 / Settings.RATIO);
 				  break;
 				  
 				case 2:
-					shapeDef.vertexCount = 3;
-					shapeDef.vertices[0].Set(-tileSize / 2 / Settings.RATIO, -tileSize / 2 / Settings.RATIO);  //  o
-					shapeDef.vertices[1].Set( tileSize / 2 / Settings.RATIO,  tileSize / 2 / Settings.RATIO);  //  o o  
-					shapeDef.vertices[2].Set(-tileSize / 2 / Settings.RATIO,  tileSize / 2 / Settings.RATIO);  //  o o o
+					vertices[0] = new b2Vec2(-tileSize / 2 / Settings.RATIO, -tileSize / 2 / Settings.RATIO);  //  o
+					vertices[1] = new b2Vec2( tileSize / 2 / Settings.RATIO,  tileSize / 2 / Settings.RATIO);  //  o o  
+					vertices[2] = new b2Vec2(-tileSize / 2 / Settings.RATIO,  tileSize / 2 / Settings.RATIO);  //  o o o
 				  break;
 				  
 				case 3:
-					shapeDef.vertexCount = 3;
-					shapeDef.vertices[0].Set(-tileSize / 2 / Settings.RATIO, -tileSize / 2 / Settings.RATIO);  //  o
-					shapeDef.vertices[1].Set( 0,                              tileSize / 2 / Settings.RATIO);  //  o 
-					shapeDef.vertices[2].Set(-tileSize / 2 / Settings.RATIO,  tileSize / 2 / Settings.RATIO);  //  o o
+					vertices[0] = new b2Vec2(-tileSize / 2 / Settings.RATIO, -tileSize / 2 / Settings.RATIO);  //  o
+					vertices[1] = new b2Vec2( 0,                              tileSize / 2 / Settings.RATIO);  //  o 
+					vertices[2] = new b2Vec2(-tileSize / 2 / Settings.RATIO,  tileSize / 2 / Settings.RATIO);  //  o o
 				  break;
 				  
 				case 4:
-					shapeDef.vertexCount = 4;
-					shapeDef.vertices[0].Set(-tileSize / 2 / Settings.RATIO, -tileSize / 2 / Settings.RATIO);  //  o 
-					shapeDef.vertices[1].Set( tileSize / 2 / Settings.RATIO, 0                             );  //  o o o 
-					shapeDef.vertices[2].Set( tileSize / 2 / Settings.RATIO,  tileSize / 2 / Settings.RATIO);  //  o o o 
-					shapeDef.vertices[3].Set(-tileSize / 2 / Settings.RATIO,  tileSize / 2 / Settings.RATIO);
+					vertices[0] = new b2Vec2(-tileSize / 2 / Settings.RATIO, -tileSize / 2 / Settings.RATIO);  //  o 
+					vertices[1] = new b2Vec2( tileSize / 2 / Settings.RATIO, 0                             );  //  o o o 
+					vertices[2] = new b2Vec2( tileSize / 2 / Settings.RATIO,  tileSize / 2 / Settings.RATIO);  //  o o o 
+					vertices[3] = new b2Vec2(-tileSize / 2 / Settings.RATIO,  tileSize / 2 / Settings.RATIO);
 				  break;
 				  
 				  case 5:
-					shapeDef.vertexCount = 3;
-					shapeDef.vertices[0].Set( tileSize / 2 / Settings.RATIO, -tileSize / 2 / Settings.RATIO);  //      o
-					shapeDef.vertices[1].Set( tileSize / 2 / Settings.RATIO,  tileSize / 2 / Settings.RATIO);  //      o
-					shapeDef.vertices[2].Set( 0                            ,  tileSize / 2 / Settings.RATIO);  //    o o
+					vertices[0] = new b2Vec2( tileSize / 2 / Settings.RATIO, -tileSize / 2 / Settings.RATIO);  //      o
+					vertices[1] = new b2Vec2( tileSize / 2 / Settings.RATIO,  tileSize / 2 / Settings.RATIO);  //      o
+					vertices[2] = new b2Vec2( 0                            ,  tileSize / 2 / Settings.RATIO);  //    o o
 				  break;
 				  
 				case 6:
-					shapeDef.vertexCount = 4;
-					shapeDef.vertices[0].Set( tileSize / 2 / Settings.RATIO, -tileSize / 2 / Settings.RATIO);  //      o
-					shapeDef.vertices[1].Set( tileSize / 2 / Settings.RATIO,  tileSize / 2 / Settings.RATIO);  //  o o o
-					shapeDef.vertices[2].Set(-tileSize / 2 / Settings.RATIO,  tileSize / 2 / Settings.RATIO);  //  o o o
-					shapeDef.vertices[3].Set(-tileSize / 2 / Settings.RATIO,  0                   );
+					vertices[0] = new b2Vec2( tileSize / 2 / Settings.RATIO, -tileSize / 2 / Settings.RATIO);  //      o
+					vertices[1] = new b2Vec2( tileSize / 2 / Settings.RATIO,  tileSize / 2 / Settings.RATIO);  //  o o o
+					vertices[2] = new b2Vec2(-tileSize / 2 / Settings.RATIO,  tileSize / 2 / Settings.RATIO);  //  o o o
+					vertices[3] = new b2Vec2(-tileSize / 2 / Settings.RATIO,  0                   );
 				  break;
 				  
 				case 7:
-					shapeDef.vertexCount = 3;
-					shapeDef.vertices[0].Set(-tileSize / 2 / Settings.RATIO,  0                            );  //        
-					shapeDef.vertices[1].Set( 0                            ,  tileSize / 2 / Settings.RATIO);  //  o    
-					shapeDef.vertices[2].Set(-tileSize / 2 / Settings.RATIO,  tileSize / 2 / Settings.RATIO);  //  o o      
+					vertices[0] = new b2Vec2(-tileSize / 2 / Settings.RATIO,  0                            );  //        
+					vertices[1] = new b2Vec2( 0                            ,  tileSize / 2 / Settings.RATIO);  //  o    
+					vertices[2] = new b2Vec2(-tileSize / 2 / Settings.RATIO,  tileSize / 2 / Settings.RATIO);  //  o o      
 				  break;
 				 
 				case 8:
-					shapeDef.vertexCount = 5;
-					shapeDef.vertices[0].Set(-tileSize / 2 / Settings.RATIO, -tileSize / 2 / Settings.RATIO);//  o o   
-					shapeDef.vertices[1].Set( 0                          , -tileSize / 2 / Settings.RATIO);  //  o o o  
-					shapeDef.vertices[2].Set( tileSize / 2 / Settings.RATIO,  0                          );  //  o o o    
-					shapeDef.vertices[3].Set( tileSize / 2 / Settings.RATIO,  tileSize / 2 / Settings.RATIO);   
-					shapeDef.vertices[4].Set(-tileSize / 2 / Settings.RATIO,  tileSize / 2 / Settings.RATIO);   
+					vertices[0] = new b2Vec2(-tileSize / 2 / Settings.RATIO, -tileSize / 2 / Settings.RATIO);//  o o   
+					vertices[1] = new b2Vec2( 0                            , -tileSize / 2 / Settings.RATIO);//  o o o  
+					vertices[2] = new b2Vec2( tileSize / 2 / Settings.RATIO,  0                          );  //  o o o    
+					vertices[3] = new b2Vec2( tileSize / 2 / Settings.RATIO,  tileSize / 2 / Settings.RATIO);   
+					vertices[4] = new b2Vec2(-tileSize / 2 / Settings.RATIO,  tileSize / 2 / Settings.RATIO);   
 				  break;
 				  
 				default:
 				  break;
 			}
+			
+			var bodyDef:b2BodyDef = new b2BodyDef();
+			bodyDef.type = b2Body.b2_staticBody;
+			bodyDef.position.x = x / Settings.RATIO;
+			bodyDef.position.y = y / Settings.RATIO;
+			bodyDef.angle = rotation * 90 * Math.PI / 180;
+		
+			var tileShape:b2PolygonShape = new b2PolygonShape();
+			tileShape.SetAsArray(vertices, vertices.length);
+			
+			var fixtureDef:b2FixtureDef = new b2FixtureDef();
+			fixtureDef.shape = tileShape;
+			fixtureDef.density = 0;
+			fixtureDef.friction = Settings.TILE_FRICTION;
+			fixtureDef.restitution = Settings.TILE_RESTITUTION;
+			fixtureDef.isSensor = false;
+			fixtureDef.userData = 'tile';
 
-			shapeDef.density = 0; //STIFF
-			shapeDef.friction = Settings.TILE_FRICTION;
-			shapeDef.restitution = Settings.TILE_RESTITUTION;
-			shapeDef.userData = 'tileWorld';
-			
 			var body:b2Body = Processor.getInstance().getEngine().createBody(bodyDef);
-			body.CreateShape(shapeDef);
-			body.SetMassFromShapes();
-			
+			body.CreateFixture(fixtureDef);
 		}
 	}
-
 }

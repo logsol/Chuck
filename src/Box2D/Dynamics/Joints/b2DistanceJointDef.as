@@ -23,13 +23,19 @@ import Box2D.Common.Math.*;
 import Box2D.Dynamics.Joints.*;
 import Box2D.Dynamics.*;
 
+import Box2D.Common.b2internal;
+use namespace b2internal;
 
-/// Distance joint definition. This requires defining an
-/// anchor point on both bodies and the non-zero length of the
-/// distance joint. The definition uses local anchor points
-/// so that the initial configuration can violate the constraint
-/// slightly. This helps when saving and loading a game.
-/// @warning Do not use a zero or short length.
+
+/**
+* Distance joint definition. This requires defining an
+* anchor point on both bodies and the non-zero length of the
+* distance joint. The definition uses local anchor points
+* so that the initial configuration can violate the constraint
+* slightly. This helps when saving and loading a game.
+* @warning Do not use a zero or short length.
+* @see b2DistanceJoint
+*/
 public class b2DistanceJointDef extends b2JointDef
 {
 	public function b2DistanceJointDef()
@@ -42,35 +48,47 @@ public class b2DistanceJointDef extends b2JointDef
 		dampingRatio = 0.0;
 	}
 	
-	/// Initialize the bodies, anchors, and length using the world
-	/// anchors.
-	public function Initialize(b1:b2Body, b2:b2Body,
-								anchor1:b2Vec2, anchor2:b2Vec2) : void
+	/**
+	* Initialize the bodies, anchors, and length using the world
+	* anchors.
+	*/
+	public function Initialize(bA:b2Body, bB:b2Body,
+								anchorA:b2Vec2, anchorB:b2Vec2) : void
 	{
-		body1 = b1;
-		body2 = b2;
-		localAnchor1.SetV( body1.GetLocalPoint(anchor1));
-		localAnchor2.SetV( body2.GetLocalPoint(anchor2));
-		var dX:Number = anchor2.x - anchor1.x;
-		var dY:Number = anchor2.y - anchor1.y;
+		bodyA = bA;
+		bodyB = bB;
+		localAnchorA.SetV( bodyA.GetLocalPoint(anchorA));
+		localAnchorB.SetV( bodyB.GetLocalPoint(anchorB));
+		var dX:Number = anchorB.x - anchorA.x;
+		var dY:Number = anchorB.y - anchorA.y;
 		length = Math.sqrt(dX*dX + dY*dY);
 		frequencyHz = 0.0;
 		dampingRatio = 0.0;
 	}
 
-	/// The local anchor point relative to body1's origin.
-	public var localAnchor1:b2Vec2 = new b2Vec2();
+	/**
+	* The local anchor point relative to body1's origin.
+	*/
+	public var localAnchorA:b2Vec2 = new b2Vec2();
 
-	/// The local anchor point relative to body2's origin.
-	public var localAnchor2:b2Vec2 = new b2Vec2();
+	/**
+	* The local anchor point relative to body2's origin.
+	*/
+	public var localAnchorB:b2Vec2 = new b2Vec2();
 
-	/// The equilibrium length between the anchor points.
+	/**
+	* The natural length between the anchor points.
+	*/
 	public var length:Number;
 
-	/// The response speed.
+	/**
+	* The mass-spring-damper frequency in Hertz.
+	*/
 	public var frequencyHz:Number;
 
-	/// The damping ratio. 0 = no damping, 1 = critical damping.
+	/**
+	* The damping ratio. 0 = no damping, 1 = critical damping.
+	*/
 	public var dampingRatio:Number;
 };
 

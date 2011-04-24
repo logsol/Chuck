@@ -4,10 +4,12 @@
 	import Box2D.Dynamics.b2Body;
 	import Box2D.Dynamics.b2BodyDef;
 	import Box2D.Common.Math.b2Vec2;
-	import Box2D.Collision.Shapes.b2ShapeDef;
-	import Box2D.Collision.Shapes.b2PolygonDef;
-	import Box2D.Collision.Shapes.b2CircleDef;
 	import Box2D.Collision.Shapes.b2Shape;
+	import Box2D.Collision.Shapes.b2CircleShape;
+	import Box2D.Collision.Shapes.b2PolygonShape;
+	import Box2D.Dynamics.b2Fixture;
+	import Box2D.Dynamics.b2FixtureDef;
+
 	import flash.display.Shape;
 	
 	import WenchWars.Config.Settings;
@@ -21,7 +23,7 @@
 	public class Doll
 	{
 		protected var _body:b2Body;
-		protected var _legs:b2Shape;
+		protected var _legs:b2Fixture;
 		protected var _contactPoint:b2ContactPoint;
 		
 		public function Doll() 
@@ -31,45 +33,48 @@
 			bodyDef.position.y = 0 / Settings.RATIO;
 			bodyDef.fixedRotation = true;
 			bodyDef.linearDamping = Settings.PLAYER_LINEAR_DAMPING;
-			
-			var headShapeDef:b2CircleDef = new b2CircleDef();
-			headShapeDef.radius = 5 / Settings.RATIO;
-			headShapeDef.density = Settings.PLAYER_DENSITY;
-			headShapeDef.friction = 0;
-			headShapeDef.restitution = Settings.PLAYER_RESTITUTION;
-			headShapeDef.localPosition.Set(0 / Settings.RATIO, -37 / Settings.RATIO);
-			headShapeDef.userData = 'myHead';
-			
-			var bodyShapeDef:b2PolygonDef = new b2PolygonDef();
-			bodyShapeDef.SetAsOrientedBox(5 / Settings.RATIO, 16 / Settings.RATIO, new b2Vec2(0 / Settings.RATIO, -21 / Settings.RATIO));
-			bodyShapeDef.friction = 0;
-			bodyShapeDef.density = Settings.PLAYER_DENSITY;
-			bodyShapeDef.restitution = Settings.PLAYER_RESTITUTION;
-			bodyShapeDef.userData = 'myBody';
-			
-			var legsShapeDef:b2CircleDef = new b2CircleDef();
-			legsShapeDef.radius = 5 / Settings.RATIO;
-			legsShapeDef.density = Settings.PLAYER_DENSITY;
-			legsShapeDef.friction = Settings.PLAYER_FRICTION;
-			legsShapeDef.restitution = Settings.PLAYER_RESTITUTION;
-			legsShapeDef.localPosition.Set(0 / Settings.RATIO, -5 / Settings.RATIO);
-			legsShapeDef.userData = 'myLegs';
-			
-			var feetShapeDef:b2CircleDef = new b2CircleDef();
-			feetShapeDef.radius = 4 / Settings.RATIO;
-			feetShapeDef.density = 0;
-			feetShapeDef.friction = 0;
-			feetShapeDef.restitution = 0;
-			feetShapeDef.localPosition.Set(0 / Settings.RATIO, 0 / Settings.RATIO);
-			feetShapeDef.isSensor = true;
-			feetShapeDef.userData = 'myFeet';
+			bodyDef.type = b2Body.b2_dynamicBody;
 			
 			this._body = Processor.getInstance().getEngine().createBody(bodyDef);
-			this._body.CreateShape(headShapeDef);
-			this._body.CreateShape(bodyShapeDef);
-			this._legs = this._body.CreateShape(legsShapeDef);
-			this._body.CreateShape(feetShapeDef);
-			this._body.SetMassFromShapes();
+			
+			var fixtureDef:b2FixtureDef = new b2FixtureDef();
+			fixtureDef.density = Settings.PLAYER_DENSITY;
+			fixtureDef.friction = 0;
+			fixtureDef.restitution = Settings.PLAYER_RESTITUTION;
+			
+			
+			var headShape:b2CircleShape = new b2CircleShape();
+			headShape.SetRadius(5 / Settings.RATIO);
+			headShape.SetLocalPosition(new b2Vec2(0 / Settings.RATIO, -37 / Settings.RATIO));
+			fixtureDef.shape = headShape;
+			fixtureDef.isSensor = false;
+			fixtureDef.userData = 'myHead';
+			this._body.CreateFixture(fixtureDef);
+			
+			var bodyShape:b2PolygonShape = new b2PolygonShape();
+			bodyShape.SetAsOrientedBox(5 / Settings.RATIO, 16 / Settings.RATIO, new b2Vec2(0 / Settings.RATIO, -21 / Settings.RATIO));
+			fixtureDef.shape = bodyShape;
+			fixtureDef.isSensor = false;
+			fixtureDef.userData = 'myBody';
+			this._body.CreateFixture(fixtureDef);
+			
+			var legsShape:b2CircleShape = new b2CircleShape();
+			legsShape.SetRadius(5 / Settings.RATIO);
+			legsShape.SetLocalPosition(new b2Vec2(0 / Settings.RATIO, -5 / Settings.RATIO));
+			fixtureDef.shape = legsShape;
+			fixtureDef.friction = Settings.PLAYER_FRICTION;
+			fixtureDef.isSensor = false;
+			fixtureDef.userData = 'myLegs';
+			this._legs = this._body.CreateFixture(fixtureDef);
+		
+			var feetShape:b2CircleShape = new b2CircleShape();
+			feetShape.SetRadius(4 / Settings.RATIO);
+			feetShape.SetLocalPosition(new b2Vec2(0 / Settings.RATIO, 0 / Settings.RATIO));
+			fixtureDef.shape = feetShape;
+			fixtureDef.isSensor = true;
+			fixtureDef.userData = 'myFeet';
+			this._body.CreateFixture(fixtureDef);
+
 		}
 		
 		public function getBody():b2Body
@@ -81,14 +86,14 @@
 		{
 			if (this._legs.GetFriction() != friction)
 			{
-				this._legs.m_friction = friction;
+				this._legs.SetFriction(friction);
 			}
 		}
 		
 		public function move(direction:int, speed:Number):void
 		{
 			this._setFriction(Settings.PLAYER_MOTION_FRICTION);
-			this._body.WakeUp();
+			this._body.SetAwake(true);
 			var vector:b2Vec2 = new b2Vec2(speed * direction, this._body.GetLinearVelocity().y);
 			this._body.SetLinearVelocity(vector);
 		}
@@ -100,7 +105,7 @@
 		
 		public function jump():void
 		{
-			this._body.WakeUp();
+			this._body.SetAwake(true);
 			
 			var vector:b2Vec2 = new b2Vec2(0, -Settings.JUMP_SPEED);
 			this._body.ApplyImpulse(vector, this._body.GetPosition());
