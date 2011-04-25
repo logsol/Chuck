@@ -35,8 +35,12 @@
 			this._mc.stop();
 			var mclp:MovieClipLabelParser = new MovieClipLabelParser();
 			mclp.parse(this._mc);
-			
+		}
+		
+		public function spawn(x:int, y:int):void
+		{
 			Repository.getInstance().createModel(this._mc, this._doll.getBody());
+			this._doll.spawn(x, y);
 		}
 		
 		public function getDoll():Doll

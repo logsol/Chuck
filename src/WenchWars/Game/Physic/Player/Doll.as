@@ -75,6 +75,13 @@
 			fixtureDef.userData = 'myFeet';
 			this._body.CreateFixture(fixtureDef);
 
+			this._body.SetActive(false);
+		}
+		
+		public function spawn(x:int, y:int):void
+		{
+			this._body.SetPosition(new b2Vec2(x / Settings.RATIO, y / Settings.RATIO));
+			this._body.SetActive(true);
 		}
 		
 		public function getBody():b2Body

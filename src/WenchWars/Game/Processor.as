@@ -5,6 +5,7 @@
 	import flash.display.Loader;
 	import flash.events.Event;
 	import flash.display.DisplayObject;
+	import flash.utils.*;
 	
 	import Box2D.Dynamics.*;
 	import Box2D.Collision.*;
@@ -25,6 +26,7 @@
 	import WenchWars.Game.Control.KeyboardInput;
 	import WenchWars.Game.Collision.CollisionDetector;
 	import WenchWars.Game.Physic.Engine;
+	import WenchWars.Tool.Debug.*;
 	
 	import WenchWars.Tool.Debug.Arrow;
 	
@@ -56,7 +58,7 @@
 		{
 			this._engine     = new Engine();
 			this._me         = new Player();
-			//var second:Player = new Player();
+			var player2:Player = new Player();
 			
 			this._camera     = Camera.getInstance()
 			this._repository = Repository.getInstance();
@@ -69,9 +71,20 @@
 			new Level();
 			new Items();
 			
-			this._camera.follow(this._me);
+			Out.put("Players spawn after 3 seconds.");
+			Out.put("Notice, that Player2 seems to be afk xD");
+			
+			setTimeout(this.spawnPlayers, 3000, this._me, player2);
 			
 			View.getInstance().getSprite().addEventListener(Event.ENTER_FRAME, this._update)
+		}
+		
+		private function spawnPlayers(p1:Player, p2:Player):void
+		{
+			p1.spawn(50, 250);
+			p2.spawn(580, 10);
+			
+			this._camera.follow(p1);
 		}
 		
 		public function getMe():Player
