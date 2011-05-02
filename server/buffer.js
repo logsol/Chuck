@@ -39,11 +39,18 @@ function onData()
         }
 	else 
 	{
-		if((buffer.length + data.length) == streamLength)
+	    var length = buffer.length + data.length;
+		if((length) == streamLength)
 		{
 			processData(buffer + data);
 			streamLength = 0;
 			buffer = "";
+		}
+		else if (length > streamLength)
+		{
+		    var p = length - streamLength;
+		    processData(buffer + data.substr(0, p));
+		    buffer = data.substr(p, data.length);
 		}
 		else
 		{
