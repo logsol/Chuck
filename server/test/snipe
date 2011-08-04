@@ -1,0 +1,3 @@
+
+:run
+redshell_win ../test/JServ.abc ../test.abc
