@@ -1,0 +1,19 @@
+C:\dev\JServ>java -jar redt/asc.jar -AS3 -import redt/builtin.abc -import redt/t
+oplevel.abc test/JServ.as
+
+JServ.abc, 382 bytes written
+
+C:\dev\JServ>java -jar redt/asc.jar -AS3 -import redt/builtin.abc -import redt/t
+oplevel.abc -import test/JServ.abc test.as
+
+test.abc, 178 bytes written
+
+C:\dev\JServ>cd redt
+
+C:\dev\JServ\redt>redshell.exe ../test/JServ.abc ../test.abc
+
+JServ 0.001a: testing Redtamarin
+127.0.0.1
+192.168.2.103
+
+C:\dev\JServ\redt>
